@@ -1,0 +1,257 @@
+-- Create Database
+CREATE LibraryDatabase;
+USE LibraryDatabase;
+
+
+
+-- Drop tables if they exist
+DROP TABLE IF EXISTS patrons
+DROP TABLE IF EXISTS adresses;
+DROP TABLE IF EXISTS transactions;
+DROP TABLE IF EXISTS transaction_books;
+DROP TABLE IF EXISTS books;
+DROP TABLE IF EXISTS authors;
+DROP TABLE IF EXISTS book_authors;
+DROP TABLE IF EXISTS genres;
+DROP TABLE IF EXISTS book_genres;
+DROP TABLE IF EXISTS publishers;
+DROP TABLE IF EXISTS fines;
+
+
+
+
+
+
+-- Adding in Tables
+-- Patrons Table
+CREATE TABLE Patron (
+    patron_id INT IDENTITY(1,1) PRIMARY KEY,
+    patron_first_name VARCHAR(50) NOT NULL,
+    patron_last_name VARCHAR(50) NOT NULL,
+    patron_address_id VARCHAR(50),
+    patron_date_of_birth DATE,
+    patron_phone_number CHAR(10),
+    patron_email VARCHAR(100)
+    CONSTRAINT fk_addresses_address_id FOREIGN KEY (patron_address_id) REFERENCES addresses(address_id)
+);
+
+-- Addresses Table
+CREATE TABLE addresses (
+    address_id INT PRIMARY KEY,
+    address_street VARCHAR(50), 
+    address_city VARCHAR(50), 
+    address_state CHAR(2),
+    address_zip_code CHAR(5)
+)
+
+-- Transactions table
+CREATE TABLE transactions (
+    transaction_id INT IDENTITY(1,1) PRIMARY KEY,
+    transaction_date DATE NOT NULL,
+    transaction_patron_id INT NOT NULL
+    CONSTRAINT fk_patrons_patron_id FOREIGN KEY (transaction_patron_id) REFERENCES patrons(patron_id)
+);
+
+-- Transactions Book list table
+CREATE TABLE transaction_books (
+    transaction_books_transaction_id INT PRIMARY KEY,
+    transaction_books_book_id INT PRIMARY KEY,
+    CONSTRAINT fk_transactions_transaction_id FOREIGN KEY (transaction_books_transaction_id) REFERENCES transactions(transaction_id),
+    CONSTRAINT fk_transaction_books_book_id FOREIGN KEY (transaction_books_book_id) REFERENCES books(book_id)
+);
+
+-- Books table
+CREATE TABLE books(
+    book_id INT IDENTITY(1,1) PRIMARY KEY,
+    book_title VARCHAR(50) NOT NULL,
+    book_publisher_id INT,
+    book_publication_year CHAR(4),
+    book_isbn CHAR(13),
+    CONSTRAINT fk_publishers_publisher_id FOREIGN KEY (book_publisher_id) REFERENCES publishers(publisher_id)
+);
+
+-- Authors Table 
+CREATE TABLE authors (
+    author_id INT IDENTITY(1,1) PRIMARY KEY,
+    author_first_name VARCHAR(50) NOT NULL,
+    author_last_name VARCHAR(50) NOT NULL,
+    author_birth_date DATE,
+    author_nationality VARCHAR(50)
+);
+
+-- Bridge Table for Authors & Books
+CREATE TABLE book_authors (
+    book_authors_book_id INT PRIMARY KEY,
+    book_authors_author_id INT PRIMARY KEY,
+    CONSTRAINT fk_book_authors_book_id FOREIGN KEY (book_authors_book_id) REFERENCES books(book_id),
+    CONSTRAINT fk_book_authors_author_id FOREIGN KEY (book_authors_author_id) REFERENCES authors(author_id)
+);
+
+-- Genres Table
+CREATE TABLE Genre (
+    genre_id INT IDENTITY(1,1) PRIMARY KEY,
+    genre_name VARCHAR(50) NOT NULL
+);
+
+-- Bridge Table for Genres & Books
+CREATE TABLE book_genres (
+    book_genres_book_id INT PRIMARY KEY,
+    book_genres_genre_id INT PRIMARY KEY,
+    CONSTRAINT fk_book_genres_book_id FOREIGN KEY (book_genres_book_id) REFERENCES books(book_id),
+    CONSTRAINT fk_book_genres_genre_id FOREIGN KEY (book_genres_genre_id) REFERENCES genres(genre_id)
+);
+
+-- Publishers Table
+CREATE TABLE Publishers (
+    publisher_id INT IDENTITY(1,1) PRIMARY KEY,
+    publisher_name VARCHAR(50) NOT NULL,
+    publisher_address_id INT,
+    publisher_email VARCHAR(100),
+    publisher_phone_number CHAR(10)
+    CONSTRAINT fk_publishers_address_id FOREIGN KEY (publisher_address_id) REFERENCES addresses(address_id)
+);
+
+-- Fines Table
+CREATE TABLE fines (
+    fine_id INT IDENTITY(1,1) PRIMARY KEY,
+    fine_patron_id INT,
+    fine_amount MONEY,
+    fine_given_date DATE,
+    fine_due_date DATE,
+    FOREIGN KEY (fine_customer_id) REFERENCES Patron(patron_id)
+);
+GO 
+
+
+
+
+
+
+-- Sample Date Loading
+-- Sample data loading for Author table
+INSERT INTO authors (author_id, author_first_name, author_last_name, author_birth_date, author_nationality)
+VALUES
+    (1, 'John', 'Doe', '1980-01-15', 'American'),
+    (2, 'Jane', 'Smith', '1975-05-20', 'British');
+    (3, 'David', 'Johnson', '1992-03-10', 'Canadian'),
+    (4, 'Emily', 'Williams', '1985-09-18', 'Australian'),
+    (5, 'Michael', 'Brown', '1978-07-25', 'Irish'),
+    (6, 'Sarah', 'Miller', '1989-12-04', 'French'),
+    (7, 'William', 'Anderson', '1995-02-14', 'German'),
+    (8, 'Olivia', 'Jones', '1972-06-30', 'Italian'),
+    (9, 'James', 'Wilson', '1983-04-21', 'Spanish'),
+    (10, 'Sophia', 'Davis', '1990-11-11', 'Swedish');
+    
+-- Insert 10 books with fictitious data
+INSERT INTO books (book_title, book_author_id, book_genre_id, book_publisher_id, book_publication_year, book_ISBN)
+VALUES ('The Great Novel', 1, 1, 1, 1995, '978-3-16-148410-0'),
+       ('SciFi Adventure', 2, 2, 2, 2005, '978-1-61-729584-8'),
+       ('Romantic Tales', 3, 3, 3, 2012, '978-1-57-231514-5'),
+       ('History of Empires', 4, 4, 1, 1998, '978-0-07-222680-0'),
+       ('Math for Dummies', 5, 5, 2, 2019, '978-0-07-222535-3'),
+       ('Elixir of Life', 1, 6, 3, 1987, '978-1-58-347562-8'),
+       ('Art of Cooking', 6, 7, 1, 2009, '978-0-19-953589-7'),
+       ('Future of AI', 7, 8, 2, 2021, '978-0-07-882476-0'),
+       ('Calm Your Mind', 8, 9, 3, 2015, '978-0-596-52068-7'),
+       ('Space Exploration', 9, 10, 1, 2003, '978-0-596-10046-9');
+       
+-- Insert 10 patrons with fictitious data
+INSERT INTO patrons (patron_first_name, patron_last_name, patron_address, patron_date_of_birth, patron_phone_number, patron_email)
+VALUES ('Alice', 'Smith', '123 Main St, Springfield, IL', '1985-12-01', '+1 555 1234', 'alice@email.com'),
+       ('Bob', 'Johnson', '456 Elm St, Shelbyville, IL', '1990-06-15', '+1 555 5678', 'bob@email.com'),
+       ('Catherine', 'Williams', '789 Oak St, Capital City, IL', '1995-02-20', '+1 555 9876', 'catherine@email.com'),
+       ('David', 'Brown', '101 Maple St, Ogdenville, IL', '1980-08-10', '+1 555 2468', 'david@email.com'),
+       ('Emily', 'Davis', '202 Pine St, North Haverbrook, IL', '1975-03-15', '+1 555 1357', 'emily@email.com'),
+       ('Frank', 'Garcia', '303 Birch St, Seaport, IL', '1987-11-21', '+1 555 8642', 'frank@email.com'),
+      ('Grace', 'Harris', '404 Cedar St, Cypress Creek, IL', '1999-09-30', '+1 555 9753', 'grace@email.com'),
+       ('Henry', 'Clark', '505 Redwood St, Salsbury, IL', '1965-05-25', '+1 555 7891', 'henry@email.com'),
+       ('Ivy', 'Lewis', '606 Sequoia St, Springfield, IL', '1978-04-12', '+1 555 1598', 'ivy@email.com'),
+       ('Jack', 'Young', '707 Palm St, Waverly Hills, IL', '2002-01-17', '+1 555 7531', 'jack@email.com');
+
+
+
+
+
+
+
+
+
+-- Sample Queries
+-- Query 1: Retrieve books by a specific author
+SELECT Book.book_title
+FROM Book
+WHERE Book.book_author_id = 1;
+
+-- Query 2: Retrieve books borrowed by a specific patron
+SELECT patron_id, transaction_date, book_id, book_title
+FROM patrons p 
+    JOIN transactions t on p.patron_id = t.transaction_patron_id
+    JOIN transaction_books tb on t.transaction_id = tb.transaction_books_transaction_id
+    JOIN books b on tb.transaction_books_book_id = b.book_id
+WHERE patron_id = 1;
+
+-- Query 3: Calculate the total fines paid by a patron
+SELECT patrons.patron_first_name, patrons.patron_last_name, SUM(fins.fine_amount) AS total_fines_paid
+FROM patrons
+LEFT JOIN Fine ON patrons.patron_id = fines.fine_patron_id
+GROUP BY patrons.patron_id;
+
+
+
+
+
+
+
+-- Example Trigger
+DELIMITER //
+CREATE TRIGGER UpdateDueDate
+AFTER INSERT ON fines
+FOR EACH ROW
+BEGIN
+    IF NEW.fine_due_date IS NULL THEN
+        UPDATE fines
+        SET borrowed_return_date = CURDATE() + 14
+        WHERE fine_id = NEW.fine_id;
+    END IF;
+END;
+//
+DELIMITER ;
+
+
+
+
+
+
+-- Example procedure
+CREATE PROCEDURE viewCurrentAddress @patron_id AS 
+    BEGIN
+        SELECT patron_id, address_street + ', ' + address_city + ', ' + address_state + ' ' + address_zip_code
+        FROM patrons
+            JOIN address on patron_address_id = address_id
+        WHERE patron_id = @patron_id
+    END;
+
+
+
+
+
+
+-- Example View
+CREATE VIEW BiographyGenreBookLookup AS 
+    BEGIN
+        SELECT book_id, book_title, book_publication_year, book_isbn
+        FROM books 
+            JOIN book_genres ON book_id = book_genres_book_id
+            JOIN genres ON genre_id = book_genres_genre_id
+        WHERE book_genre_id = 'Biography'
+    END;
+
+
+
+
+
+
+-- Example Indexes
+CREATE INDEX ix_genre_id ON genres(genre_id)
+CREATE INDEX ix_author_id ON authors(author_id)
+    
