@@ -1,4 +1,4 @@
-# Library_Database_Design
+# Library Database Design (SQL)
 ### Designed and implemented a relational database using SQL for efficient library data management.
 
 This project involved designing a SQL database solution for a public library, transitioning it from an outdated, paper-based system to a fully digital platform. A library's traditional system is time-consuming, error-prone, and required significant physical storage space. Our goal was to automate routine tasks like inventory management, checkouts, and record-keeping, allowing library staff to focus more on customer service and improving user experience. In addition, the new system would provide the library with the ability to analyze data for strategic planning and optimize resource allocation.
